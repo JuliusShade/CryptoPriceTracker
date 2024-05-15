@@ -1,70 +1,74 @@
-import React, { useState, useEffect } from "react";
+// HomeScreen.js
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
+  Image,
   StyleSheet,
 } from "react-native";
-import axios from "axios";
+import fetchDataAndCombine from "../api/apiManager"; // Adjust path as necessary
 
-const HomeScreen = ({ navigation }) => {
-  const [cryptos, setCryptos] = useState([]);
+const HomeScreen = () => {
+  const [cryptoData, setCryptoData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "https://api.binance.us/api/v3/ticker/price"
-        );
-        const data = response.data.map((item) => ({
-          id: item.symbol,
-          name: item.symbol,
-          price: item.price,
-        }));
-        setCryptos(data);
-      } catch (error) {
-        console.error("Error fetching data from Binance", error);
-      }
+    const loadCryptoData = async () => {
+      const data = await fetchDataAndCombine(); // This should return the combined data
+      setCryptoData(data);
     };
 
-    fetchData();
-  });
+    loadCryptoData();
+  }, []);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => navigation.navigate("Details", { coinId: item.id })}
+      onPress={() => console.log("Pressed", item.symbol)} // Placeholder for navigation or other interaction
     >
-      <Text style={styles.itemText}>
-        {item.name} - ${item.price}
-      </Text>
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={styles.coinImage}
+        onError={(e) => console.log("Image load error:", e.nativeEvent.error)}
+      />
+      <View style={styles.textContainer}>
+        <Text style={styles.coinName}>{item.symbol}</Text>
+        <Text style={styles.coinPrice}>{`${item.price} USD`}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={cryptos}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+    <FlatList
+      data={cryptoData}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.symbol}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 20,
-  },
   itemContainer: {
-    padding: 20,
+    flexDirection: "row",
+    padding: 10,
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
+    borderBottomColor: "#ccc",
   },
-  itemText: {
-    fontSize: 18,
+  textContainer: {
+    marginLeft: 10,
+  },
+  coinImage: {
+    width: 50,
+    height: 50,
+  },
+  coinName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  coinPrice: {
+    fontSize: 14,
   },
 });
 
