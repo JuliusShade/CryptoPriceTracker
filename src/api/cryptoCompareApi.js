@@ -8,7 +8,7 @@ const getCryptoCompareData = async (symbols, api_key) => {
   // Update the regular expression to more robustly strip unwanted suffixes
   const cleanedSymbols = symbols.map((symbol) =>
     symbol.replace(
-      /(USD|USDT|EUR|ETH|BTC|8USD|8USDT|USD4|USDC|DAI|BUSD|TUSD|USDP|PAX)$/,
+      /(USD|USDT|EUR|8USD|8USDT|USD4|USDC|DAI|BUSD|TUSD|USDP|PAX)$/,
       ""
     )
   );
